@@ -1,14 +1,15 @@
 @import "tailwindcss";
 
 body {
-  --dot-bg: #E5E4E2;
+  --dot-bg: black;
   --dot-color: #818589;
-  --dot-size: 1px;
-  --dot-space: 50px;
+  --dot-size: 2px;
+  --dot-space: 100px;
+  --dot-shadow: white;
   background:
+    radial-gradient(ellipse at center, rgba(196, 185, 185, 0.1) 0%, transparent 70%), 
     linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
     linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
     var(--dot-color);
 }
-
 

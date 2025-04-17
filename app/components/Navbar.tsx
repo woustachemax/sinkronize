@@ -12,7 +12,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-gray-200 shadow">
+    <nav className="bg-black drop-shadow-glow border-b-1 border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
@@ -20,29 +20,29 @@ export default function Navbar() {
               onClick={() => router.push("/")}
               className="flex items-center cursor-pointer"
             >
-              <div className="mr-2 text-black">
+              <div className="mr-2 text-white drop-shadow-[0px_0px_7px_rgba(252,252,252,0.9)]">
                 <Brain />
               </div>
-              <div className="font-extrabold text-lg text-black">SkillSync</div>
+              <div className="font-extrabold text-lg text-white drop-shadow-[0px_0px_7px_rgba(252,252,252,0.9)]">Sinkronize</div>
             </div>
           </div>
-          <div className="hidden md:flex items-center space-x-4">
+          <div className=" drop-shadow-glow hidden md:flex items-center space-x-4">
             <button
               type="button"
-              className="text-black font-extrabold hover:text-gray-400"
-              onClick={() => router.push("/")}   
+              className="text-white font-extrabold hover:text-gray-200"
+              onClick={() => router.push("/")}
             >
               Home
             </button>
             <button
               type="button"
-              className="py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-600 dark:text-white dark:border-gray-400 dark:hover:text-white dark:hover:bg-gray-700"
+              className="py-2 px-4 text-sm font-medium focus:outline-none rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-white dark:bg-white dark:text-black dark:border-gray-400 dark:hover:text-white dark:hover:bg-black drop-shadow-glow"
             >
               Signup
             </button>
             <button
               type="button"
-              className="py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-white dark:border-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
+              className="py-2 px-4 text-sm font-medium  ocus:outline-none rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-black dark:bg-black dark:text-white dark:border-white dark:hover:text-black dark:hover:bg-white drop-shadow-glow"
             >
               Login
             </button>
@@ -51,7 +51,7 @@ export default function Navbar() {
             <button
               onClick={toggleMobileMenu}
               type="button"
-              className="bg-gray-100 rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              className="p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 focus:outline-none  "
               aria-expanded={isMobileMenuOpen}
             >
               <span className="sr-only">Open main menu</span>
@@ -93,7 +93,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      
       <div className={isMobileMenuOpen ? "md:hidden block" : "md:hidden hidden"}>
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
           <button
@@ -101,19 +100,19 @@ export default function Navbar() {
               router.push("/");
               setIsMobileMenuOpen(false);
             }}
-            className="bg-gray-100 text-gray-900 block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-200 hover:text-gray-800"
+            className="text-gray-300 block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-800 hover:text-white"
           >
             Home
           </button>
           <button
-            onClick={() => setIsMobileMenuOpen(false)} // Add signup logic if needed
-            className="text-gray-600 block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-200 hover:text-gray-800"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="text-gray-300 block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-800 hover:text-white"
           >
             Signup
           </button>
           <button
-            onClick={() => setIsMobileMenuOpen(false)} // Add login logic if needed
-            className="text-gray-600 block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-200 hover:text-gray-800"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="text-gray-300 block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-800 hover:text-white"
           >
             Login
           </button>
