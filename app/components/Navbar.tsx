@@ -17,7 +17,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <div
-              onClick={() => router.push("/")}
+              onClick={() => router.push("/home")}
               className="flex items-center cursor-pointer"
             >
               <div className="mr-2 text-white drop-shadow-[0px_0px_7px_rgba(252,252,252,0.9)]">
@@ -30,19 +30,22 @@ export default function Navbar() {
             <button
               type="button"
               className="text-white font-extrabold hover:text-gray-200"
-              onClick={() => router.push("/")}
+              onClick={() => router.push("/home")}
             >
               Home
             </button>
             <button
               type="button"
               className="py-2 px-4 text-sm font-medium focus:outline-none rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-white dark:bg-white dark:text-black dark:border-gray-400 dark:hover:text-white dark:hover:bg-black drop-shadow-glow"
+              onClick={() => router.push("/signup")}
             >
               Signup
             </button>
             <button
               type="button"
               className="py-2 px-4 text-sm font-medium  ocus:outline-none rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-black dark:bg-black dark:text-white dark:border-white dark:hover:text-black dark:hover:bg-white drop-shadow-glow"
+              onClick={() => router.push("/login")}
+
             >
               Login
             </button>
@@ -97,7 +100,7 @@ export default function Navbar() {
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
           <button
             onClick={() => {
-              router.push("/");
+              router.push("/home");
               setIsMobileMenuOpen(false);
             }}
             className="text-gray-300 block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-800 hover:text-white"
@@ -105,13 +108,17 @@ export default function Navbar() {
             Home
           </button>
           <button
-            onClick={() => setIsMobileMenuOpen(false)}
+            onClick={() => {
+              router.push("/signup");
+              setIsMobileMenuOpen(false)}}
             className="text-gray-300 block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-800 hover:text-white"
           >
             Signup
           </button>
           <button
-            onClick={() => setIsMobileMenuOpen(false)}
+            onClick={() => {
+              router.push("/login");
+              setIsMobileMenuOpen(false)}}
             className="text-gray-300 block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-800 hover:text-white"
           >
             Login

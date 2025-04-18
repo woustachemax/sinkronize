@@ -1,17 +1,22 @@
-# SkillSync
+# Welcome to Sinkronize
 
-SkillSync helps you connect with like-minded individuals, forming meaningful teams in a world where AI and humans collaborate seamlessly. This app facilitates the development of genuine connections, bringing together people with complementary skills and shared goals.
+A wise person once said, **"You can just build things."** However, turning that simple idea into reality often requires either significant prompting or the collaboration of a highly skilled co-builder to stay on track and effectively "build things." That's precisely where Sinkronize comes in.
 
-So far, I’ve developed the homepage using Next.js, React, and Tailwind CSS. My vision is to expand this app into a platform where individuals can connect, collaborate, and grow together, leveraging the power of AI to foster real teamwork.
+Sinkronize is a passion project – a complete end-to-end application designed to connect individuals who share your ambition but may need assistance or are ready to offer their expertise in building.
 
-## Getting Started
+## How It Was Built
 
-To get started with SkillSync, follow these steps:
+Sinkronize leverages a straightforward yet powerful text-based stack, incorporating:
 
-### 1. Clone the Repository
+* **Frontend Framework:** Next.js (drawing on Express principles and React components)
+* **Backend Environment:** Node.js
+* **Database:** PostgreSQL
+* **ORM (Object-Relational Mapper):** Prisma
+* **Validation:** Zod
+* **Password Hashing:** bcrypt
+* **Styling and Icons:** Tailwind CSS and Lucide React
+* **Authentication:** Implementation of Google Auth for seamless login functionality.
 
-Clone the repository to your local machine using Git:
+You can explore the codebase and contribute on GitHub: [https://github.com/woustachemax/sinkronize](https://github.com/woustachemax/sinkronize)
 
-```bash
-git clone https://github.com/woustachemax/skillsync.git
-
+Thank you for taking the time to check it out! Feel free to contribute, 🤎 [woustachemax](https://woustachemax.github.io/portfolio/)
