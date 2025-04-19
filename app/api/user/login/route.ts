@@ -16,7 +16,7 @@ if(!JWT_SECRET){
     throw new Error("The JWT Secret hasn't been exported for Login/ is not defined in environment variables")
 }
 
-export default async function POST(req: NextRequest){
+export async function POST(req: NextRequest){
     const body: z.infer<typeof loginSchema> =  await req.json();
     const login = loginSchema.safeParse(body);
 

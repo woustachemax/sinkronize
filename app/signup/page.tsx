@@ -1,5 +1,7 @@
+import Signin from "../components/Signin";
+
 export default function Signup(){
-    return <div className="text-white">
-        hi
+    return <div className="bg-black">
+        <Signin type="signup"/>
     </div>
 }

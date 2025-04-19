@@ -14,12 +14,16 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 
 
 if(!JWT_SECRET){
-    throw new Error("The JWT Secret hasn't been exported for Signup/ is not defined in environment variables")
+    throw new Error("The JWT Secret hasn't been exported for Signup / is not defined in environment variables")
 }
 
+//  async function GET(req: NextRequest){
+//     const body = await req.json();
 
+//     return NextResponse.json(body)
+// }
 
-export default async function POST(req: NextRequest){
+export async function POST(req: NextRequest){
 const body: z.infer<typeof signupSchema> = await req.json()
     const signup = signupSchema.safeParse(body);
     
@@ -51,12 +55,18 @@ const body: z.infer<typeof signupSchema> = await req.json()
                 email: body.email,
                 password: hashedPassword,
                 skills: {
-                    create: body.skills.map(skill=> ({ talents: skill }))
+                    create: body.skills.map( skill=> ({ talents: skill }))
                 }
             }
                 
            
         })
+        // if (!body.skills){
+        //     return NextResponse.json({msg:"no"})
+        // }
+        // if(!newUser){
+        //     return NextResponse.json({msg:"problem is with schema"})
+        // }
 
         const token = await jwt.sign({id: newUser.id, email: newUser.email}, JWT_SECRET);
         return NextResponse.json({token})
