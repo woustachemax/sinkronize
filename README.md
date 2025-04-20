@@ -9,13 +9,14 @@ Sinkronize is a passion project – a complete end-to-end application designed t
 Sinkronize leverages a straightforward yet powerful text-based stack, incorporating:
 
 * **Frontend Framework:** Next.js (drawing on Express principles and React components)
-* **Backend Environment:** Node.js
+* **Backend Environment:** Node.js, cause cloudflare workers suck
 * **Database:** PostgreSQL
 * **ORM (Object-Relational Mapper):** Prisma
 * **Validation:** Zod
 * **Password Hashing:** bcrypt
 * **Styling and Icons:** Tailwind CSS and Lucide React
 * **Authentication:** Implementation of Google Auth for seamless login functionality.
+* **UI Design:** Figma
 
 You can explore the codebase and contribute on GitHub: [https://github.com/woustachemax/sinkronize](https://github.com/woustachemax/sinkronize)
 

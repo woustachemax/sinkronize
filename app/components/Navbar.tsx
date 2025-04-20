@@ -3,6 +3,8 @@ import { Brain } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+
+
 export default function Navbar() {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -36,14 +38,14 @@ export default function Navbar() {
             </button>
             <button
               type="button"
-              className="py-2 px-4 text-sm font-medium focus:outline-none rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-white dark:bg-white dark:text-black dark:border-gray-400 dark:hover:text-white dark:hover:bg-black drop-shadow-glow"
+              className="py-2 px-4 text-sm font-medium focus:outline-none rounded-lg border focus:z-10 focus:ring-4  focus:ring-white bg-white text-black border-gray-400 hover:text-white hover:bg-black drop-shadow-glow"
               onClick={() => router.push("/signup")}
             >
               Signup
             </button>
             <button
               type="button"
-              className="py-2 px-4 text-sm font-medium  ocus:outline-none rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-black dark:bg-black dark:text-white dark:border-white dark:hover:text-black dark:hover:bg-white drop-shadow-glow"
+              className="py-2 px-4 text-sm font-medium  ocus:outline-none rounded-lg border focus:z-10 focus:ring-4 focus:ring-black bg-black text-white border-white hover:text-black hover:bg-white drop-shadow-glow"
               onClick={() => router.push("/login")}
 
             >

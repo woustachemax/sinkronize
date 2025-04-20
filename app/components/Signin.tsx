@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { loginSchema, signupSchema } from "../lib/schema";
-import NextAuth from "next-auth"
+// import NextAuth from "next-auth" //for some other time 
 
 
 type AuthType = "login" | "signup";
@@ -13,6 +13,7 @@ interface Inputs {
   email: string;
   password: string;
   skills?: string[];
+  username?: string;
 }
 
 interface Errors {
@@ -23,7 +24,7 @@ export default function Signin({ type }: { type: AuthType }) {
   const [inputs, setInputs] = useState<Inputs>({
     email: "",
     password: "",
-    ...(type === "signup" && { skills: [] }),
+    ...(type === "signup" && { skills: [], username: "" }),
   });
 
   const [errors, setErrors] = useState<Errors>({});
@@ -56,9 +57,9 @@ export default function Signin({ type }: { type: AuthType }) {
       setErrors(fieldErrors);
       return;
     }
-
+//localhost:300/endpoint gave cors error, wow so unexpected
     try {
-      const response = await fetch(`http://localhost:3000${endpoint}`, {
+      const response = await fetch(`${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validationResult.data),
@@ -110,6 +111,17 @@ export default function Signin({ type }: { type: AuthType }) {
             />
           )}
 
+          {type === "signup" && (
+            <Label
+              label="Username"
+              placeholder="Anton"
+              type="username"
+              value={inputs.username}
+              error={errors.username}
+              onChange={(e)=> setInputs({...inputs, username: e.target.value})}
+            />
+          )}
+
           <Label
             label="Email"
             placeholder="sid@example.com"
@@ -146,8 +158,8 @@ export default function Signin({ type }: { type: AuthType }) {
 interface LabelProps {
   label: string;
   placeholder: string;
-  type?: string;
-  value: string;
+  type?: string ;
+  value: string | undefined;  //undefined cause username wont choose a value ffs
   error?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void; 

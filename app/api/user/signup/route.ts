@@ -34,33 +34,51 @@ const body: z.infer<typeof signupSchema> = await req.json()
         {status: 411})
     }
 
-    const userExists = await client.user.findUnique({
+    const userExistsByEmail = await client.user.findUnique({
         where:{
             email: body.email
         }
     })
 
-    if(userExists){
+    if(userExistsByEmail){
         return NextResponse.json({
-            msg: "User already exists, try logging in."
+            msg: "User with this email already exists, try logging in."
+        },
+        {status: 411})
+    }
+
+    // Check if a user with the provided username already exists
+    const userExistsByUsername = await client.user.findUnique({
+        where: {
+            username: body.username
+        }
+    });
+
+    if (userExistsByUsername) {
+        return NextResponse.json({
+            msg: "This username is already taken, please choose another."
         },
         {status: 411})
     }
 
     const hashedPassword = await bcrypt.hash(body.password, 10)
+    console.log(body.username);
 
     try{
         const newUser = await client.user.create({
-            data:{
+            data: {
                 email: body.email,
                 password: hashedPassword,
+                username: body.username,
                 skills: {
-                    create: body.skills.map( skill=> ({ talents: skill }))
-                }
-            }
-                
+                    create: body.skills.map(skill => ({
+                        talents: skill,
+                        
+                    })),
+                },
+            },
+        });
            
-        })
         // if (!body.skills){
         //     return NextResponse.json({msg:"no"})
         // }
@@ -72,7 +90,7 @@ const body: z.infer<typeof signupSchema> = await req.json()
         return NextResponse.json({token})
     }
     catch(e){
-        return NextResponse.json({msg: "Error while signing up"},
+        return NextResponse.json({msg: "Error while signing up", Error: e},
             {status: 411}
         )
     }
