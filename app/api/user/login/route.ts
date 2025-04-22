@@ -28,6 +28,8 @@ export async function POST(req: NextRequest){
     const userExists = await client.user.findUnique({
         where:{
             email: body.email
+        }, include:{
+            skills: true,
         }
     })
 
@@ -48,7 +50,10 @@ export async function POST(req: NextRequest){
     }
 
     const token = jwt.sign({id: userExists.id, email: userExists.email}, JWT_SECRET)
-    return NextResponse.json({token})
+    return NextResponse.json({token,
+        username: userExists.username,
+        skills: userExists.skills
+    })
 
 
 }

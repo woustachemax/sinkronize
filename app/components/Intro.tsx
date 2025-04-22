@@ -1,6 +1,10 @@
 "use client"
 
+import { useRouter } from "next/navigation"
+
 export default function Intro(){
+    const router = useRouter()
+
     return <div>
     <div className="flex justify-center mx-auto px-4 sm:px-6 lg:px-8"> 
         <div className="py-24 sm:py-32 lg:py-48"> 
@@ -14,7 +18,8 @@ export default function Intro(){
     </p>
     </div> <br /> <br />
         <div className="flex justify-center">
-        <button type="button" className="text-stone-100 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-700 font-medium rounded-lg text-sm md:text-base px-5 py-2.5 me-2 mb-2 animate-bounce ">Get Started</button>
+        <button onClick={()=>router.push("/home")}
+        type="button" className="text-stone-100 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-700 font-medium rounded-lg text-sm md:text-base px-5 py-2.5 me-2 mb-2 animate-bounce ">Get Started</button>
         </div>
     </div>
 </div>

@@ -22,10 +22,10 @@ export default function Navbar() {
               onClick={() => router.push("/home")}
               className="flex items-center cursor-pointer"
             >
-              <div className="mr-2 text-white drop-shadow-[0px_0px_7px_rgba(252,252,252,0.9)]">
+              <div className="mr-2 text-white">
                 <Brain />
               </div>
-              <div className="font-extrabold text-lg text-white drop-shadow-[0px_0px_7px_rgba(252,252,252,0.9)]">Sinkronize</div>
+              <div className="font-extrabold text-lg text-white">Sinkronize</div>
             </div>
           </div>
           <div className=" drop-shadow-glow hidden md:flex items-center space-x-4">
@@ -39,14 +39,18 @@ export default function Navbar() {
             <button
               type="button"
               className="py-2 px-4 text-sm font-medium focus:outline-none rounded-lg border focus:z-10 focus:ring-4  focus:ring-white bg-white text-black border-gray-400 hover:text-white hover:bg-black drop-shadow-glow"
-              onClick={() => router.push("/signup")}
+              onClick={() => {router.push("/signup")
+                localStorage.clear();
+              }}
             >
               Signup
             </button>
             <button
               type="button"
               className="py-2 px-4 text-sm font-medium  ocus:outline-none rounded-lg border focus:z-10 focus:ring-4 focus:ring-black bg-black text-white border-white hover:text-black hover:bg-white drop-shadow-glow"
-              onClick={() => router.push("/login")}
+              onClick={() => {router.push("/login"),  
+                localStorage.clear(); 
+              }}
 
             >
               Login

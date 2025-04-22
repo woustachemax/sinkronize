@@ -69,6 +69,8 @@ export default function Signin({ type }: { type: AuthType }) {
 
       if (response.ok) {
         localStorage.setItem("authToken", data.jwt || data.token);
+        localStorage.setItem("username",data.username );
+        localStorage.setItem("skills", JSON.stringify(data.skills));
         router.push("/home");
       } else {
         setErrors({ general: data.message || "Authentication failed" });

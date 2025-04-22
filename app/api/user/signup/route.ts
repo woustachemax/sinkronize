@@ -67,18 +67,20 @@ const body: z.infer<typeof signupSchema> = await req.json()
     try{
         const newUser = await client.user.create({
             data: {
-                email: body.email,
-                password: hashedPassword,
-                username: body.username,
-                skills: {
-                    create: body.skills.map(skill => ({
-                        talents: skill,
-                        
-                    })),
-                },
+              email: body.email,
+              password: hashedPassword,
+              username: body.username,
+              skills: {
+                create: body.skills.map((skill) => ({
+                  talents: skill,
+                })),
+              },
             },
-        });
-           
+            include: {
+              skills: true, 
+            },
+          });
+                     
         // if (!body.skills){
         //     return NextResponse.json({msg:"no"})
         // }
@@ -87,7 +89,10 @@ const body: z.infer<typeof signupSchema> = await req.json()
         // }
 
         const token = await jwt.sign({id: newUser.id, email: newUser.email}, JWT_SECRET);
-        return NextResponse.json({token})
+        return NextResponse.json({token,
+            username: newUser.username,
+            skills: newUser.skills
+        })
     }
     catch(e){
         return NextResponse.json({msg: "Error while signing up", Error: e},
