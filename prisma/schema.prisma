@@ -19,6 +19,11 @@ model User{
   username String @unique
   password String
   skills Skills[]
+
+//friends schema is probably gonna be designed as followers-ing in ig
+  friends   User[] @relation("UserFriends") // users I added
+  friendOf  User[] @relation("UserFriends") // users who added me
+
 }
 
 model Skills{
