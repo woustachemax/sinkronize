@@ -7,21 +7,12 @@ type Skill = {
   talents: string;
 };
 
-type OtherUser = {
-  id: string;
-  username: string;
-  skills: Skill[];
-};
-
 export default function HomeValidation() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState("");
-  const [userId, setUserId] = useState("");
   const [skills, setSkills] = useState<Skill[]>([]);
-  const [otherUsers, setOtherUsers] = useState<OtherUser[]>([]);
-  const [friendsCount, setFriendsCount] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const [addingFriend, setAddingFriend] = useState<string | null>(null);
+  const [otherUsers, setOtherUsers] = useState<{ id: string; username: string; skills: Skill[] }[]>([]);
+  const [friends, setFriends] = useState<{ id: string; username: string; skills: Skill[] }[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -29,159 +20,53 @@ export default function HomeValidation() {
 
     if (!token) {
       router.push("/login");
-      return;
-    }
-    
-    const storedUser = localStorage.getItem("username") || "";
-    const storedUserId = localStorage.getItem("userId") || "";
-    const storedSkills = JSON.parse(localStorage.getItem("skills") || "[]");
+    } else {
+      const storedUser = localStorage.getItem("username") || "";
+      const storedSkills = JSON.parse(localStorage.getItem("skills") || "[]");
 
-    setUser(storedUser);
-    setUserId(storedUserId);
-    setSkills(storedSkills);
-    
-    fetchData(token);
+      setUser(storedUser);
+      setSkills(storedSkills);
+
+      const storedFriends = JSON.parse(localStorage.getItem("friends") || "[]");
+      setFriends(storedFriends);
+
+      setLoading(false);
+
+      fetch("/api/user/users", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => setOtherUsers(data.users || []))
+        .catch((err) => {
+          console.error("Failed to fetch other users", err);
+          setLoading(false);
+        });
+
+      fetch("/api/user/friend", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const fetchedFriends = data.friends || [];
+          setFriends(fetchedFriends);
+          localStorage.setItem("friends", JSON.stringify(fetchedFriends)); // Store friends in localStorage
+        })
+        .catch((err) => {
+          console.error("Failed to fetch friends", err);
+          setLoading(false);
+        });
+    }
   }, [router]);
 
-  const fetchData = async (token: string) => {
-    try {
-      console.log("Fetching users with token:", token.substring(0, 10) + "...");
-      
-      const usersResponse = await fetch("/api/user/users", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      
-      console.log("Users response status:", usersResponse.status);
-      
-      if (!usersResponse.ok) {
-        const errorText = await usersResponse.text();
-        console.error("Users response error:", errorText);
-        setError(`Failed to fetch users: ${usersResponse.status}`);
-        setLoading(false);
-        return;
-      }
-      
-      const usersData = await usersResponse.json();
-      console.log("Users data:", usersData);
-      
-      setOtherUsers(usersData.users || []);
-      
-      console.log("Fetching friends count");
-      const friendsCountResponse = await fetch("/api/user/friends/count", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      
-      if (friendsCountResponse.ok) {
-        const friendsCountData = await friendsCountResponse.json();
-        console.log("Friends count data:", friendsCountData);
-        setFriendsCount(friendsCountData.count || 0);
-      } else {
-        console.error("Failed to fetch friends count:", friendsCountResponse.status);
-      }
-      
-      setError(null);
-    } catch (error) {
-      console.error("Error during data fetching:", error);
-      setError("Failed to fetch data. See console for details.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddFriend = async (otherUser: OtherUser) => {
-    const token = localStorage.getItem("authToken");
-    if (!token || !userId || userId === otherUser.id) {
-      console.error("Invalid state for adding friend");
-      return;
-    }
-
-    setAddingFriend(otherUser.id);
-
-    try {
-      console.log("Sending add friend request for:", otherUser.id);
-      const res = await fetch("/api/user/friends", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ friendId: otherUser.id }),
-      });
-
-      console.log("Add friend response status:", res.status);
-
-      const responseText = await res.text();
-      console.log("Add friend response text:", responseText);
-
-      let result;
-      try {
-        result = JSON.parse(responseText);
-      } catch (e) {
-        console.log("Response is not JSON:", responseText);
-      }
-
-      if (!res.ok) {
-        console.error("Add friend error:", result || responseText);
-        alert(`Failed to add friend: ${res.status} - ${result?.msg || responseText}`);
-        return;
-      }
-
-      console.log("Friend added successfully:", result);
-      alert(`Friend added: ${otherUser.username}`);
-      
-      setOtherUsers((prevUsers) =>
-        prevUsers.filter((u) => u.id !== otherUser.id)
-      );
-      
-      setFriendsCount((prevCount) => prevCount + 1);
-    } catch (err) {
-      console.error("Add friend exception:", err);
-      alert("Something went wrong when adding friend!");
-    } finally {
-      setAddingFriend(null);
-    }
-  };
-
-  if (loading) {
-    return <div className="flex justify-center items-center h-screen text-white">Loading...</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col justify-center items-center h-screen text-white p-4">
-        <h2 className="text-xl font-bold mb-4">Error</h2>
-        <p className="text-red-400 mb-4">{error}</p>
-        <button 
-          onClick={() => {
-            const token = localStorage.getItem("authToken");
-            if (token) {
-              setLoading(true);
-              setError(null);
-              fetchData(token);
-            } else {
-              router.push("/login");
-            }
-          }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          Retry
-        </button>
-        <button 
-          onClick={() => {
-            localStorage.clear();
-            router.push("/login");
-          }}
-          className="px-4 py-2 mt-2 border border-white text-white rounded-md hover:bg-white hover:text-black"
-        >
-          Logout
-        </button>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="text-white text-center my-100">
+      Loading ...
+    </div>
+  );
 
   return (
     <div className="flex text-white min-h-screen">
@@ -202,56 +87,85 @@ export default function HomeValidation() {
             Skills:{" "}
             {skills.length > 0
               ? skills.map((skill) => skill.talents).join(", ")
-              : "No skills"}
+              : "Skill Issue"}
           </div>
-          <div className="text-gray-400 font-semibold text-xs my-5">
-            Friends: {friendsCount}
+          <div className="text-gray-400 font-semibold my-5 text-sm" 
+          onClick={()=>router.push('/chat')}
+          >
+            Friends : {friends.length}
           </div>
         </div>
       </div>
 
       <div className="flex-grow p-5">
+
         <div className="mt-6 grid gap-4">
-          {otherUsers.length > 0 ? (
-            otherUsers.map((otherUser, index) => (
-              <div
-                key={index}
-                className="border border-gray-700 rounded-md p-4 flex items-center justify-between"
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-sm font-semibold text-white">
-                    {otherUser.username.slice(0, 2).toUpperCase()}
+          {otherUsers.map((otherUser, index) => (
+            <div
+              key={index}
+              className="border border-gray-700 rounded-md p-4 flex items-center justify-between"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-sm font-semibold text-white">
+                  {otherUser.username.slice(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <div className="font-bold text-white text-sm">
+                    {otherUser.username}
                   </div>
-                  <div>
-                    <div className="font-bold text-white text-sm">
-                      {otherUser.username}
-                    </div>
-                    <div className="text-gray-400 text-xs">
-                      Skills:{" "}
-                      {otherUser.skills.length > 0
-                        ? otherUser.skills.map((s) => s.talents).join(", ")
-                        : "No skills"}
-                    </div>
+                  <div className="text-gray-400 text-xs">
+                    Skills:{" "}
+                    {otherUser.skills.length > 0
+                      ? otherUser.skills.map((s) => s.talents).join(", ")
+                      : "Skill Issue"}
                   </div>
                 </div>
-                <button
-                  className={`text-xs border border-white text-white px-3 py-1 rounded-md ${
-                    addingFriend === otherUser.id 
-                      ? "bg-gray-700 opacity-50 cursor-not-allowed" 
-                      : "hover:bg-white hover:text-black"
-                  }`}
-                  onClick={() => handleAddFriend(otherUser)}
-                  disabled={addingFriend === otherUser.id}
-                >
-                  {addingFriend === otherUser.id ? "Adding..." : "Add Friend"}
-                </button>
               </div>
-            ))
-          ) : (
-            <div className="text-center text-gray-400 py-8">
-              No other users found
+              <button className="text-xs border border-white text-white px-3 py-1 rounded-md hover:bg-white hover:text-black"
+              onClick={async () => {
+                const token = localStorage.getItem("authToken");
+
+                if (!token) {
+                  router.push("/login");
+                  return;
+                }
+
+                try {
+                  const response = await fetch("/api/user/friends", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ friendId: otherUser.id }),
+                  });
+
+                  const data = await response.json();
+
+                  if (response.ok) {
+                    alert(data.msg);
+
+                    setFriends((prevFriends) => {
+                      const updatedFriends = [...prevFriends, otherUser];
+                      localStorage.setItem("friends", JSON.stringify(updatedFriends));
+                      return updatedFriends;
+                    });
+
+                    setOtherUsers((prevUsers) => prevUsers.filter((u) => u.id !== otherUser.id));
+
+                  } else {
+                    alert(data.msg);
+                  }
+                } catch (err) {
+                  console.error("Failed to add friend", err);
+                  alert("An error occurred while adding the friend. Please try again.");
+                }
+              }}
+            >
+                Add Friend
+              </button>
             </div>
-          )}
+          ))}
         </div>
       </div>
 
