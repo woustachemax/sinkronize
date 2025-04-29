@@ -44,7 +44,7 @@ export default function HomeValidation() {
           setLoading(false);
         });
 
-      fetch("/api/user/friend", {
+      fetch("/api/user/friends", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -53,7 +53,7 @@ export default function HomeValidation() {
         .then((data) => {
           const fetchedFriends = data.friends || [];
           setFriends(fetchedFriends);
-          localStorage.setItem("friends", JSON.stringify(fetchedFriends)); // Store friends in localStorage
+          localStorage.setItem("friends", JSON.stringify(fetchedFriends)); 
         })
         .catch((err) => {
           console.error("Failed to fetch friends", err);
@@ -63,7 +63,7 @@ export default function HomeValidation() {
   }, [router]);
 
   if (loading) return (
-    <div className="text-white text-center my-100">
+    <div className="text-white text-center">
       Loading ...
     </div>
   );

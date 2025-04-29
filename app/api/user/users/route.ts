@@ -22,9 +22,19 @@ export async function GET(req: NextRequest) {
     try{
         const decoded = jwt.verify(token, JWT_SECRET) as {id: string, email: string}
 
+        const user = await client.user.findUnique({
+            where: { id: decoded.id },
+            select: { friends: { select: { id: true } } },
+          });
+          
+          const friendIds = user?.friends.map(friend => friend.id) || [];
+
+          
         const otherUsers = await client.user.findMany({
             where:{
-                id: {not: decoded.id},
+                id: {
+                    notIn: [decoded.id, ...friendIds]
+                },
             },
             select:{
                 id: true,

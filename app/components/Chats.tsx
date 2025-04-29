@@ -21,7 +21,7 @@ export default function Chat(){
         setLoading(false);
     }}, [router])
 
-    if(loading) return <div className="text-white text-center my-100">
+    if(loading) return <div className="text-white text-center">
         Loading ...
     </div>
 
