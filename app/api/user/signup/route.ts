@@ -47,7 +47,6 @@ const body: z.infer<typeof signupSchema> = await req.json()
         {status: 411})
     }
 
-    // Check if a user with the provided username already exists
     const userExistsByUsername = await client.user.findUnique({
         where: {
             username: body.username
