@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import  io from 'socket.io-client';
+import io, { Socket } from 'socket.io-client';
 
 type Friend = {
   id: string;
@@ -24,20 +24,17 @@ type SendMessagePayload = {
   message: string;
 };
 
-const socket = io('http://localhost:3000'); 
-
-export default function Chat() {
+export const Chat = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
   const [messageInput, setMessageInput] = useState('');
-  const messageEndRef = useRef<HTMLDivElement>(null); 
-
+  const messageEndRef = useRef<HTMLDivElement>(null);
+  const socketRef = useRef<ReturnType<typeof io> | null>(null);
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
   useEffect(() => {
     if (!token) return;
-
     fetch('/api/friends', {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -50,41 +47,35 @@ export default function Chat() {
   }, [token]);
 
   useEffect(() => {
+    socketRef.current = io({ path: '/api/user/socket' });
     const handleReceiveMessage = ({ from, message }: ReceiveMessagePayload) => {
-      setMessages((prev) => {
-        const chat = prev[from] || [];
-        return {
-          ...prev,
-          [from]: [...chat, { text: message, fromMe: false }],
-        };
-      });
+      setMessages((prev) => ({
+        ...prev,
+        [from]: [...(prev[from] || []), { text: message, fromMe: false }],
+      }));
     };
-
-    socket.on('receive-message', handleReceiveMessage);
-
+    if (socketRef.current) {
+      socketRef.current.on('receive-message', handleReceiveMessage);
+    }
     return () => {
-      socket.off('receive-message', handleReceiveMessage);
+      if (socketRef.current) {
+        socketRef.current.off('receive-message', handleReceiveMessage);
+        socketRef.current.disconnect();
+      }
     };
   }, []);
 
   const handleSend = () => {
-    if (!selectedFriend || !messageInput.trim()) return;
-
+    if (!selectedFriend || !messageInput.trim() || !socketRef.current) return;
     const payload: SendMessagePayload = {
       to: selectedFriend.id,
       message: messageInput,
     };
-
-    socket.emit('send-message', payload);
-
-    setMessages((prev) => {
-      const chat = prev[selectedFriend.id] || [];
-      return {
-        ...prev,
-        [selectedFriend.id]: [...chat, { text: messageInput, fromMe: true }],
-      };
-    });
-
+    socketRef.current.emit('send-message', payload);
+    setMessages((prev) => ({
+      ...prev,
+      [selectedFriend.id]: [...(prev[selectedFriend.id] || []), { text: messageInput, fromMe: true }],
+    }));
     setMessageInput('');
   };
 
@@ -96,9 +87,7 @@ export default function Chat() {
     <div className="flex h-screen">
       <aside className="w-64 bg-black 0 p-4 border-r border-gray-800 overflow-y-auto">
         <h2 className="text-lg font-semibold mb-4">Friends</h2>
-        {friends.length === 0 && (
-          <p className="text-sm text-gray-500">No friends found</p>
-        )}
+        {friends.length === 0 && <p className="text-sm text-gray-500">No friends found</p>}
         {friends.map((friend) => (
           <div
             key={friend.id}
@@ -112,16 +101,12 @@ export default function Chat() {
           </div>
         ))}
       </aside>
-
       <main className="flex-1 p-4 flex flex-col">
         {selectedFriend ? (
           <>
             <div className="border-b pb-2 mb-4">
-              <h2 className="text-xl font-semibold">
-                Chatting with {selectedFriend.username}
-              </h2>
+              <h2 className="text-xl font-semibold">Chatting with {selectedFriend.username}</h2>
             </div>
-
             <div className="flex-1 overflow-y-auto space-y-2 mb-4">
               {(messages[selectedFriend.id] || []).map((msg, idx) => (
                 <div
@@ -135,7 +120,6 @@ export default function Chat() {
               ))}
               <div ref={messageEndRef} />
             </div>
-
             <div className="flex items-center gap-2">
               <input
                 type="text"
@@ -144,10 +128,7 @@ export default function Chat() {
                 placeholder="Type a message"
                 className="border p-2 rounded w-full"
               />
-              <button
-                onClick={handleSend}
-                className="bg-blue-500 text-white px-4 py-2 rounded"
-              >
+              <button onClick={handleSend} className="bg-blue-500 text-white px-4 py-2 rounded">
                 Send
               </button>
             </div>
@@ -160,4 +141,6 @@ export default function Chat() {
       </main>
     </div>
   );
-}
+};
+
+export default Chat;
