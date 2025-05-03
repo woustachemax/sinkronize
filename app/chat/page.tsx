@@ -1,6 +1,6 @@
-import { Chat } from "../components/Chats"
+import Chat from "../components/Chats"
 export default function(){
     return <div className="bg-black h-screen">
-     <Chat/>
+        <Chat></Chat>
     </div>
 }
