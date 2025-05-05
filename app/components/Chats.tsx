@@ -11,19 +11,23 @@ type Friend = {
 };
 
 type Message = {
+  id?: string;
   text: string;
   fromMe: boolean;
-  timestamp?: number;
+  timestamp: number;
 };
 
 type ReceiveMessagePayload = {
   from: string;
   message: string;
+  timestamp: number;
+  messageId: string;
 };
 
 type SendMessagePayload = {
   to: string;
   message: string;
+  from?: string;
 };
 
 export default function Chat() {
@@ -33,6 +37,7 @@ export default function Chat() {
   const [messageInput, setMessageInput] = useState('');
   const [userId, setUserId] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<ReturnType<typeof io> | null>(null);
   const router = useRouter();
@@ -74,28 +79,30 @@ export default function Chat() {
   }, [router]);
 
   useEffect(() => {
-    if (!socketRef.current) {
+    if (!socketRef.current && userId) {
+      const token = localStorage.getItem('authToken');
+      
       socketRef.current = io({
         path: '/api/socket',
         autoConnect: true,
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
+        auth: { token }
       });
 
-      if (userId) {
-        socketRef.current.emit('join-room', userId);
-      }
+      socketRef.current.emit('join-room', userId);
       
-      socketRef.current.on('receive-message', ({ from, message }: ReceiveMessagePayload) => {
+      socketRef.current.on('receive-message', ({ from, message, timestamp, messageId }: ReceiveMessagePayload) => {
         setMessages((prev) => ({
           ...prev,
           [from]: [
             ...(prev[from] || []), 
             { 
+              id: messageId,
               text: message, 
               fromMe: false,
-              timestamp: Date.now()
+              timestamp
             }
           ],
         }));
@@ -118,18 +125,52 @@ export default function Chat() {
   }, [userId]);
 
   useEffect(() => {
+    if (selectedFriend && userId) {
+      fetchMessages(selectedFriend.id);
+    }
+  }, [selectedFriend, userId]);
+
+  useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, selectedFriend]);
 
-  const handleSend = () => {
-    if (!selectedFriend || !messageInput.trim() || !socketRef.current) return;
+  const fetchMessages = async (friendId: string) => {
+    setLoadingMessages(true);
+    const token = localStorage.getItem('authToken');
     
-    const payload: SendMessagePayload = {
-      to: selectedFriend.id,
-      message: messageInput,
-    };
+    try {
+      const response = await fetch(`/api/messages?friendId=${friendId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch messages');
+      }
+      
+      const data = await response.json();
+      
+      const formattedMessages = data.messages.map((msg: any) => ({
+        id: msg.id,
+        text: msg.text,
+        fromMe: msg.senderId === userId,
+        timestamp: new Date(msg.createdAt).getTime()
+      }));
+      
+      setMessages(prev => ({
+        ...prev,
+        [friendId]: formattedMessages
+      }));
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  const handleSend = async () => {
+    if (!selectedFriend || !messageInput.trim() || !socketRef.current || !userId) return;
     
-    socketRef.current.emit('send-message', payload);
+    const timestamp = Date.now();
     
     setMessages((prev) => ({
       ...prev,
@@ -138,10 +179,39 @@ export default function Chat() {
         { 
           text: messageInput, 
           fromMe: true,
-          timestamp: Date.now()
+          timestamp
         }
       ],
     }));
+
+    const payload: SendMessagePayload = {
+      to: selectedFriend.id,
+      message: messageInput,
+      from: userId,
+    };
+    
+    socketRef.current.emit('send-message', payload);
+    
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          text: messageInput,
+          recipientId: selectedFriend.id
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save message');
+      }
+    } catch (error) {
+      console.error('Error saving message:', error);
+    }
     
     setMessageInput('');
   };
@@ -197,26 +267,36 @@ export default function Chat() {
             </div>
             
             <div className="flex-1 overflow-y-auto space-y-3 mb-4 p-2">
-              {(messages[selectedFriend.id] || []).map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`p-3 rounded-lg max-w-xs ${
-                    msg.fromMe 
-                      ? 'bg-blue-600 text-white self-end ml-auto' 
-                      : 'bg-gray-700 self-start'
-                  }`}
-                >
-                  {msg.text}
-                  {msg.timestamp && (
-                    <div className="text-xs opacity-70 mt-1">
-                      {new Date(msg.timestamp).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </div>
+              {loadingMessages ? (
+                <div className="text-center py-4 text-gray-400">Loading messages...</div>
+              ) : (
+                <>
+                  {(messages[selectedFriend.id]?.length === 0) && (
+                    <div className="text-center py-4 text-gray-400">No messages yet. Say hello!</div>
                   )}
-                </div>
-              ))}
+                  
+                  {(messages[selectedFriend.id] || []).map((msg, idx) => (
+                    <div
+                      key={msg.id || idx}
+                      className={`p-3 rounded-lg max-w-xs ${
+                        msg.fromMe 
+                          ? 'bg-blue-600 text-white self-end ml-auto' 
+                          : 'bg-gray-700 self-start'
+                      }`}
+                    >
+                      {msg.text}
+                      {msg.timestamp && (
+                        <div className="text-xs opacity-70 mt-1">
+                          {new Date(msg.timestamp).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </>
+              )}
               <div ref={messageEndRef} />
             </div>
             
